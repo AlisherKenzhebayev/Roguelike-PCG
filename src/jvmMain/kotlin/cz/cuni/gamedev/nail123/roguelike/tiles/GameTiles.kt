@@ -28,6 +28,7 @@ object GameTiles {
     val BLACK = characterTile(' ', GameColors.BLACK, GameColors.BLACK)
 
     val RAT = graphicalTile("Rat")
+    val ORC = graphicalTile("Orc")
 
     val SWORD = graphicalTile("Sword")
 

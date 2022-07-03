@@ -409,9 +409,19 @@ public class SampleJavaWorld extends World {
                 break;
             }
 
+            boolean moved[] = new boolean[4];
             // Move in allowed directions for fringe expansion
             for (int i = 0; i < 4; i++){
-                var nextPos = directionMove(currentPos, i);
+                var dir = randomGen.nextInt(4);
+                while (true){
+                    if(!moved[dir]){
+                        break;
+                    }
+                    dir = randomGen.nextInt(4);
+                }
+
+                moved[dir] = true;
+                var nextPos = directionMove(currentPos, dir);
                 if(!positionValid(area, nextPos)){
                     continue;
                 }
