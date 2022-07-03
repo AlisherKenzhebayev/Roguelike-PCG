@@ -31,39 +31,25 @@ public class SampleJavaWorld extends World {
         randomGen = new Random();
 
         Area retVal = buildLevel();
-        var entities = retVal.getEntities();
-
-        retVal = colorPassable(retVal, retVal.getPlayer().getPosition());
-        retVal = colorNotPassable(retVal, retVal.getPlayer().getPosition());
-
-        while (countNonPassable(retVal) > 0)
-        {
-            retVal = postProcess(retVal, retVal.getPlayer().getPosition());
-            retVal = colorPassable(retVal, retVal.getPlayer().getPosition());
-            retVal = colorNotPassable(retVal, retVal.getPlayer().getPosition());
-        }
-
-        // Fix the colors
-        retVal = colorDefault(retVal, retVal.getPlayer().getPosition());
-        // Fix the entities
-        retVal = fixEntities(retVal, entities);
-
-        // Fix up the tilemap
-        retVal.getBlocks().forEach((position3D, gameBlock) ->
-            {
-                gameBlock.updateTileMap();
-            });
-
         return retVal;
     }
 
-    private Area fixEntities(Area retVal, List<GameEntity> entities) {
+    private Area fixEntities(Area area, List<GameEntity> entities) {
         for (var t : entities)
         {
-            retVal.addEntity(t, t.getPosition());
+            // First try updating the tilemap
+            t.getBlock().updateTileMap();
+
+            // That doesnt help -> try adding the stairs back.
+            var tile = t.getTile().asGraphicTile();
+            if(tile.isEmpty()){
+                continue;
+            }
+            if(tile.get().getName().contains("tairs "))
+                area.addEntity(t, t.getPosition());
         }
 
-        return retVal;
+        return area;
     }
 
     private int countNonPassable(Area area) {
@@ -119,7 +105,7 @@ public class SampleJavaWorld extends World {
                 retVal++;
             }
         }
-        System.out.println(retVal);
+        System.out.println(retVal + " " + area.getEntities().toArray().length);
 
         return retVal;
     }
@@ -212,12 +198,19 @@ public class SampleJavaWorld extends World {
 
         // Color the tiles, connected to the player position/traversable
         for (Position3D tilePos : mapFlood.keySet()) {
-            if(area.fetchBlockAt(tilePos).isEmpty()) {
+            var block = area.fetchBlockAt(tilePos);
+            if(block.isEmpty()) {
                 continue;
             }
-            {
-                setBlock(area, tilePos, new FloorTrav());
+            var graphic = block.get().getBaseTile().asGraphicTile();
+            if(!graphic.isEmpty()) {
+                System.out.println(graphic.get().getName());
+                if (graphic.get().getName().contains("tairs ")) {
+                    //Do nothing ;
+                }
             }
+
+            setBlock(area, tilePos, new FloorTrav());
         }
         return area;
     }
@@ -362,9 +355,24 @@ public class SampleJavaWorld extends World {
     }
 
     private boolean isGameBlockDiggable(GameBlock currentGB) {
-        if(!(currentGB instanceof FloorTrav)){
+        var graphTile = currentGB.getBaseTile().asGraphicTile();
+        if(!graphTile.isEmpty()){
+//            System.out.println(graphTile.get().getName());
+            if(graphTile.get().getName().contains("tairs ")){
+                return false;
+            }
+        }
+
+        var tile = currentGB.getBaseTile().asCharacterTile();
+        if(tile.isEmpty()){
             return true;
         }
+        if(!(tile.get().getCharacter() == '*')){
+            return true;
+        }
+//        if(!(currentGB instanceof FloorTrav)){
+//            return true;
+//        }
         return false;
     }
 
@@ -503,10 +511,35 @@ public class SampleJavaWorld extends World {
             areaBuilder.addAtEmptyPosition(new Rat(), Position3D.defaultPosition(), areaBuilder.getSize());
         }
 
-        // TODO: post-process
-
         // Build it into a full Area
-        return areaBuilder.build();
+        var retVal = areaBuilder.build();
+
+
+        var entities = retVal.getEntities();
+
+        retVal = colorPassable(retVal, retVal.getPlayer().getPosition());
+        retVal = colorNotPassable(retVal, retVal.getPlayer().getPosition());
+
+        while (countNonPassable(retVal) > 0)
+        {
+            retVal = postProcess(retVal, retVal.getPlayer().getPosition());
+            retVal = colorPassable(retVal, retVal.getPlayer().getPosition());
+            retVal = colorNotPassable(retVal, retVal.getPlayer().getPosition());
+        }
+
+        // Fix the colors
+        retVal = colorDefault(retVal, retVal.getPlayer().getPosition());
+        // Fix the entities
+        retVal = fixEntities(retVal, entities);
+
+        // Fix up the tilemap
+        retVal.getBlocks().forEach((position3D, gameBlock) ->
+        {
+            gameBlock.updateTileMap();
+        });
+
+
+        return retVal;
     }
 
     /**
