@@ -32,6 +32,11 @@ fun MovingEntity.goBlindlyTowards(target: Position3D) {
     if (dir != null) move(dir)
 }
 
+fun MovingEntity.goBlindlyFrom(target: Position3D) {
+    val dir = Navigation.bestDirection(position, target)
+    if (dir != null) move(dir.opposite)
+}
+
 fun MovingEntity.goSmartlyTowards(target: Position3D) {
     val dir = Navigation.pathTo(position, target, area)
     if (dir != null) move(dir)

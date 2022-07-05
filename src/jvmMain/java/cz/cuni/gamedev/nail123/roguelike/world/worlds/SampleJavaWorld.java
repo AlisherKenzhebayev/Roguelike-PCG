@@ -3,6 +3,8 @@ package cz.cuni.gamedev.nail123.roguelike.world.worlds;
 import cz.cuni.gamedev.nail123.roguelike.GameConfig;
 import cz.cuni.gamedev.nail123.roguelike.blocks.*;
 import cz.cuni.gamedev.nail123.roguelike.entities.GameEntity;
+import cz.cuni.gamedev.nail123.roguelike.entities.enemies.Chest;
+import cz.cuni.gamedev.nail123.roguelike.entities.enemies.Orc;
 import cz.cuni.gamedev.nail123.roguelike.entities.enemies.Rat;
 import cz.cuni.gamedev.nail123.roguelike.entities.objects.Stairs;
 import cz.cuni.gamedev.nail123.roguelike.events.LoggedEvent;
@@ -45,6 +47,7 @@ public class SampleJavaWorld extends World {
             if(tile.isEmpty()){
                 continue;
             }
+            
             if(tile.get().getName().contains("tairs "))
                 area.addEntity(t, t.getPosition());
         }
@@ -519,6 +522,18 @@ public class SampleJavaWorld extends World {
         // Add some random rats
         for (int i = 0; i <= currentLevel; ++i) {
             areaBuilder.addAtEmptyPosition(new Rat(), Position3D.defaultPosition(), areaBuilder.getSize());
+        }
+
+        // Add some orcs to each level, starting with level 2
+        if(currentLevel >= 2) {
+            for (int i = 0; i <= currentLevel; ++i) {
+                areaBuilder.addAtEmptyPosition(new Orc(), Position3D.defaultPosition(), areaBuilder.getSize());
+            }
+        }
+
+        // Add some chests to each level
+        for (int i = 0; i <= currentLevel + 2; ++i) {
+            areaBuilder.addAtEmptyPosition(new Chest(), Position3D.defaultPosition(), areaBuilder.getSize());
         }
 
         // Build it into a full Area

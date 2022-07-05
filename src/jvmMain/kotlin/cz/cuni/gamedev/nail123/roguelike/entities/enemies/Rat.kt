@@ -1,7 +1,9 @@
 package cz.cuni.gamedev.nail123.roguelike.entities.enemies
 
 import cz.cuni.gamedev.nail123.roguelike.entities.attributes.HasSmell
+import cz.cuni.gamedev.nail123.roguelike.entities.items.HealingPotion
 import cz.cuni.gamedev.nail123.roguelike.entities.items.Sword
+import cz.cuni.gamedev.nail123.roguelike.mechanics.LootSystem
 import cz.cuni.gamedev.nail123.roguelike.mechanics.Pathfinding
 import cz.cuni.gamedev.nail123.roguelike.mechanics.goBlindlyTowards
 import cz.cuni.gamedev.nail123.roguelike.tiles.GameTiles
@@ -24,7 +26,6 @@ class Rat: Enemy(GameTiles.RAT), HasSmell {
 
     override fun die() {
         super.die()
-        // Drop a sword
-        this.block.entities.add(Sword(2))
+        LootSystem.onDeath(this);
     }
 }
